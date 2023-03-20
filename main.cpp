@@ -58,15 +58,27 @@ public:
 
     void addNode(Node <newType> *newNode)
     {
-        *tops->next = newNode;
+        tops = (*newType)malloc(sizeof(newType));
+        *tops->next = &newNode;
     }
     void connectNodes(int id1, int id2)
     {
-        Node *n1 = tops;
-        Node *n2 = tops;
-        while (n1.getID() != id1)
+        if (id1 == id2)
         {
-            n1 = n1 + sizeof(Node);
+            std::cout << "Connected" << "\n"; //Соединение узла с самим собой 
+        } else {
+        
+            Node <newType> *n1 = tops;
+            Node <newType> *n2 = tops;
+            while (n1->getID() != id1)
+            {
+                n1 = n1 + sizeof(Node <newType>);
+            }
+            while (n2->getID() != id2)
+            {
+                n2 = n2 + sizeof(Node <newType>);
+            }
+            n1->next = n2;
         }
     }
     void deleteNode();
@@ -87,11 +99,13 @@ int main()
     std::cout << n1->getWeight() << std::endl;
     //Node <char> *n2 = new Node(2, 'a');
     Node <int> *n2 = new Node(2, 2);
-    n1->next = n2;
+    //n1->next = n2;
+    
     std::cout << n1->next->getWeight() << "\n";
     
     Graph <int> *g_map = new Graph(*n1);
-    
+    g_map->addNode(n2);
+    g_map->connectNodes(1, 2);
     
     
     delete g_map;
