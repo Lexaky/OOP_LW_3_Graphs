@@ -1,117 +1,116 @@
 #include <iostream>
-
-template <typename newType>
-class Node
+using namespace std;
+struct Node
 {
-private:
-    newType weight;
-    int id;
-public:
-    Node *next;
-    Node(int setID, newType setWeight_constructor)
-    {
-        id = setID;
-        weight = setWeight_constructor;
-    }
-
-    newType getWeight()
-    {
-        return weight;
-    }
-
-    int getID()
-    {
-        return id;
-    }
-    void setWeight(newType newWeight)
-    {
-        weight = newWeight;
-    }
+    int weight = 0;
+    int id = 0;
+    Node *right = nullptr;
+    Node *down = nullptr;
 };
-template <typename newType>
+
 class Graph
 {
-private:
-    /*
-    Локальный смежный список содержит информацию о всех взаимосвязях между узлами.
-    Т.к. смежный список - это последовательность узлов в виде очереди, а каждый узел
-    ссылается на первый связанный с ним узел (который, в свою очередь, ссылается
-    на следующий узел, с которым имеет связь исходный рассматриваемый узел), то существует необходимость
-    реализовывать узлы с указателем в теле private, а в графе - двумерный динамический массив
-    из узлов.
-    */
-    Node <newType> **tops;
-    bool haveElements; //Имеются ли узлы в графе
-    int countOfElements; //Количество узлов в графе
-public:
-    Graph ()
-    {
-        haveElements = false;
-        countOfElements = 0;
-    }
-    Graph (Node <newType> anotherElement)
-    {
-        haveElements = true;
-        *tops = &anotherElement;
-        countOfElements = 1;
-    }
+  private:
+  Node *top;
+  public:
 
-    void addNode(Node <newType> *newNode)
-    {
-        tops = (*newType)malloc(sizeof(newType));
-        *tops->next = &newNode;
-    }
-    void connectNodes(int id1, int id2)
-    {
-        if (id1 == id2)
+  Graph()
+  {
+      top = new Node();
+  }
+
+  Graph(Node *n1)
+  {
+      top = n1;
+  }
+
+  void connectNodes(Node *n1, Node *n2)
+  {
+      Node *start = top;
+      Node *move_ = top;
+      Node *move1;
+      Node *move2;
+      bool connected = false;
+      bool isSecondTopFound = false;
+      while (move_ != nullptr && connected == false)
+      {
+          if (move_->id == n1->id)
+          {
+              move1 = move_;
+              while(move1->right != nullptr)
+                move1 = move1->right; //Нашёл место для вставки связи
+          }
+          if (move_->id == n2->id)
+          {
+              //Нашёл вторую связуемую вершину в списке
+                isSecondTopFound = true;
+          }
+          if (isSecondTopFound == true && move1->right == nullptr)
+          {
+              move1->right = n2;
+              connected = true;
+          }
+          move_ = move_->down;
+      }
+      top = start;
+
+  }
+  void addNode(Node *n1)
+  {
+      Node *move;
+      move = top;
+      bool analogy = false;
+      while (move->down != nullptr)
+      {
+          if (move->id == n1->id) analogy = true;
+          move = move->down;
+      }
+      if (analogy != true)
+        move->down = n1;
+  }
+  void printNodes()
+  {
+      Node *moveRight;
+      Node *move = top;
+      while(move != nullptr)
+      {
+        moveRight = move;
+        cout << "Current node: [id] " << move->id << "; [weight] " << move->weight << endl;
+        cout << "Connected nodes:\n";
+        while(moveRight != nullptr)
         {
-            std::cout << "Connected" << "\n"; //Соединение узла с самим собой 
-        } else {
-        
-            Node <newType> *n1 = tops;
-            Node <newType> *n2 = tops;
-            while (n1->getID() != id1)
-            {
-                n1 = n1 + sizeof(Node <newType>);
-            }
-            while (n2->getID() != id2)
-            {
-                n2 = n2 + sizeof(Node <newType>);
-            }
-            n1->next = n2;
+            if (moveRight->id != move->id)
+                cout << "[id] " << moveRight->id << "; [weight] " << moveRight->weight << endl;
+            moveRight = moveRight->right;
         }
-    }
-    void deleteNode();
-    void searchNode();
-    void printNodesConnects()
-    {
-        for (int i = 0; i < countOfElements; i++)
-        {
-            std::cout << tops[i][0].getWeight() << "\n";   
-        }
-    }
+        cout << "~~~~~~" << endl;
+        move = move->down;
+      }
+  }
+
 };
+
 
 int main()
 {
-    setlocale(LC_ALL, "rus");
-    Node <int> *n1 = new Node(1, 4);
-    std::cout << n1->getWeight() << std::endl;
-    //Node <char> *n2 = new Node(2, 'a');
-    Node <int> *n2 = new Node(2, 2);
-    //n1->next = n2;
-    
-    std::cout << n1->next->getWeight() << "\n";
-    
-    Graph <int> *g_map = new Graph(*n1);
+    Graph *g_map = new Graph();
+    Node *n = new Node();
+    n->weight = 1;
+    n->id = 2;
+    g_map->addNode(n);
+    Node *n1 = new Node();
+    n1->weight = 5;
+    n1->id = 55;
+    g_map->addNode(n1);
+    g_map->connectNodes(n, n1);
+    Node *n2 = new Node();
+    n2->id = 1488;
+    n2->weight = 228;
     g_map->addNode(n2);
-    g_map->connectNodes(1, 2);
-    
-    
-    delete g_map;
-    delete n1;
-    delete n2;
-    //Graph <newType> *g_map = new Graph();
-    //*g_map->printNodesConnects();
+    g_map->connectNodes(n1, n);
+    g_map->connectNodes(n2, n);
+    g_map->connectNodes(n2, n1);
+    g_map->printNodes();
+
     return 0;
 }
